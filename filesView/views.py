@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
-
-from django.shortcuts import render
-from django.http import HttpResponse
 import os
+from django.shortcuts import render
 from tempUtil import transListToPath, getDefaultPath
 from django.http import StreamingHttpResponse
 # Create your views here.
@@ -35,11 +33,16 @@ def index(request):
         files = os.listdir(realLocation)
         infos = list()
         for file in files:
-            infos.append({"fileName": file, "linkUrl": generateLink(currentLocation, file),
+            infos.append({"fileName": file,
+                          "linkUrl": generateLink(currentLocation, file),
                           "absPath": os.path.join(realLocation, file)})
-        directoryInfos = [partInfo for partInfo in infos if os.path.isdir(partInfo["absPath"])]
-        fileInfos = [partInfo for partInfo in infos if not os.path.isdir(partInfo["absPath"])]
-        return render(request, "filesView.html", {"directoryInfos": directoryInfos, "fileInfos": fileInfos})
+        directoryInfos = [partInfo for partInfo in infos
+                          if os.path.isdir(partInfo["absPath"])]
+        fileInfos = [partInfo for partInfo in infos
+                     if not os.path.isdir(partInfo["absPath"])]
+        return render(request, "filesView.html",
+                      {"directoryInfos": directoryInfos,
+                       "fileInfos": fileInfos})
     else:
         return render(request, "error.html")
 
@@ -55,5 +58,6 @@ def downloadFile(request):
     response = StreamingHttpResponse(file)
     response['Content-Type'] = 'application/octet-stream'
     # print "filename", calFileName(realLocation)
-    response['Content-Disposition'] = 'attachment;filename="{fileName}"'.format(fileName=calFileName(realLocation))
+    response['Content-Disposition'] = 'attachment;filename="{fileName}"'\
+        .format(fileName=calFileName(realLocation))
     return response
