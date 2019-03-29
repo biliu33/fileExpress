@@ -22,6 +22,7 @@ urlpatterns = [
     url(r'^admin/', admin.site.urls),
 
     url(r'^file/', realFileViews.index),
+    url(r'^download/', realFileViews.downloadFile),
 
     url(r'^login/$', loginViews.index),
     url(r'^login/action/$', loginViews.login_action),
