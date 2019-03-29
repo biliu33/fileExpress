@@ -1,0 +1,16 @@
+<html>
+<head>
+    <meta http-equiv="content-type" content="text/html;charset=utf-8"/>
+
+    <title>登陆页面</title>
+</head>
+<body>
+<form method="post" action="/login/action/">
+    <input  name="username" type="text" placeholder="用户名"><br>
+    <input  name="password" type="password" placeholder="密码"><br>
+    <button id="btn" type="submit">登陆</button>
+    {% csrf_token %}
+</form>
+    <h1>{{errorMessage}}</h1>
+</body>
+</html>
