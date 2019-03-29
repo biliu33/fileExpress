@@ -4,8 +4,8 @@ from __future__ import unicode_literals
 from django.shortcuts import render
 from django.http import HttpResponse
 import os
-from tempUtil import transListToPath
-
+from tempUtil import transListToPath, getDefaultPath
+from django.http import StreamingHttpResponse
 # Create your views here.
 
 
@@ -14,14 +14,23 @@ def generateLink(locationList, fileName):
     return locationList[-1] + "/" + fileName
 
 
+def calFileName(absFilePath):
+    fileName = ([_ for _ in absFilePath.split("/") if _])[-1]
+    return fileName
+
+
+def generateFileDownloadLink(locationList, fileName):
+    locationList = [_ for _ in locationList if _]
+    return locationList[-1] + "/" + fileName
+
+
 def index(request):
-    print "request path", request.path
     currentLocation = request.path.split("/")[2:]
     if currentLocation[0]:
         realLocation = transListToPath(currentLocation)
     else:
-        realLocation = "C:/"
-    print realLocation
+        currentLocation = [getDefaultPath()]
+        realLocation = transListToPath([getDefaultPath()])
     if os.path.exists(realLocation) and os.path.isdir(realLocation):
         files = os.listdir(realLocation)
         infos = list()
@@ -33,3 +42,18 @@ def index(request):
         return render(request, "filesView.html", {"directoryInfos": directoryInfos, "fileInfos": fileInfos})
     else:
         return render(request, "error.html")
+
+
+def downloadFile(request):
+    currentLocation = request.path.split("/")[2:]
+    if currentLocation[0]:
+        realLocation = transListToPath(currentLocation)
+    else:
+        currentLocation = [getDefaultPath()]
+        realLocation = transListToPath([getDefaultPath()])
+    file = open(realLocation, "rb")
+    response = StreamingHttpResponse(file)
+    response['Content-Type'] = 'application/octet-stream'
+    # print "filename", calFileName(realLocation)
+    response['Content-Disposition'] = 'attachment;filename="{fileName}"'.format(fileName=calFileName(realLocation))
+    return response
